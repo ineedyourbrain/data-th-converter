@@ -127,6 +127,6 @@ DataConverter.prototype.convert = function() {
 
 
 DataConverter.prototype.insertSampleData = function() {
-  this.inputTextArea.val(" <table class='myclass'  id='myid'>\n <thead>\n<tr class='myclass'>\n <th class='myclass'>Month</th>\n <th>Savings</th>\n </tr>\n</thead>\n<tbody>\n  <tr>\n <td>January</td>\n <td>$100</td>\n </tr>\n </tbody>\n </table>\n "); }
+  this.inputTextArea.val("<table class='myclass' id='myid'>\n<thead>\n<tr class='myclass'>\n<th class='myclass'>Month</th>\n<th>Savings</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>January</td>\n<td>$100</td>\n</tr>\n</tbody>\n</table>\n"); }
 
 
