@@ -16,49 +16,18 @@ function DataConverter(nodeId) {
   this.nodeId                 = nodeId;
   this.node                   = $("#"+nodeId);
 
-  this.outputDataTypes        = [
-                                {"text":"Actionscript",           "id":"as",               "notes":""},
-                                {"text":"ASP/VBScript",           "id":"asp",              "notes":""},
-                                {"text":"HTML",                   "id":"html",             "notes":""},
-                                {"text":"JSON - Properties",      "id":"json",             "notes":""},
-                                {"text":"JSON - Column Arrays",   "id":"jsonArrayCols",    "notes":""},
-                                {"text":"JSON - Row Arrays",      "id":"jsonArrayRows",    "notes":""},
-                                {"text":"JSON - Dictionary",      "id":"jsonDict",         "notes":""},
-                                {"text":"MySQL",                  "id":"mysql",            "notes":""},
-                                {"text":"PHP",                    "id":"php",              "notes":""},
-                                {"text":"Python - Dict",          "id":"python",           "notes":""},
-                                {"text":"Ruby",                   "id":"ruby",             "notes":""},
-                                {"text":"XML - Properties",       "id":"xmlProperties",    "notes":""},
-                                {"text":"XML - Nodes",            "id":"xml",              "notes":""},
-                                {"text":"XML - Illustrator",      "id":"xmlIllustrator",   "notes":""}];
-  this.outputDataType         = "json";
-
-  this.columnDelimiter        = "\t";
-  this.rowDelimiter           = "\n";
+  
 
   this.inputTextArea          = {};
   this.outputTextArea         = {};
 
   this.inputHeader            = {};
   this.outputHeader           = {};
-  this.dataSelect             = {};
 
+  
   this.inputText              = "";
   this.outputText             = "";
 
-  this.newLine                = "\n";
-  this.indent                 = "  ";
-
-  this.commentLine            = "//";
-  this.commentLineEnd         = "";
-  this.tableName              = "MrDataConverter"
-
-  this.useUnderscores         = true;
-  this.headersProvided        = true;
-  this.downcaseHeaders        = true;
-  this.upcaseHeaders          = false;
-  this.includeWhiteSpace      = true;
-  this.useTabsForIndent       = false;
 
 }
 
@@ -70,17 +39,9 @@ DataConverter.prototype.create = function(w,h) {
   var self = this;
 
   //build HTML for converter
-  this.inputHeader = $('<div class="groupHeader" id="inputHeader"><p class="groupHeadline">Input CSV or tab-delimited data. <span class="subhead"> Using Excel? Simply copy and paste. No data on hand? <a href="#" id="insertSample">Use sample</a></span></p></div>');
+  this.inputHeader = $('<div class="groupHeader" id="inputHeader"><p class="groupHeadline">Input table HTML  (No data on hand? <a href="#" id="insertSample">Use sample</a>)</p></div>');
   this.inputTextArea = $('<textarea class="textInputs" id="dataInput"></textarea>');
-  var outputHeaderText = '<div class="groupHeader" id="inputHeader"><p class="groupHeadline">Output as <select name="Data Types" id="dataSelector" >';
-    for (var i=0; i < this.outputDataTypes.length; i++) {
-
-      outputHeaderText += '<option value="'+this.outputDataTypes[i]["id"]+'" '
-              + (this.outputDataTypes[i]["id"] == this.outputDataType ? 'selected="selected"' : '')
-              + '>'
-              + this.outputDataTypes[i]["text"]+'</option>';
-    };
-    outputHeaderText += '</select><span class="subhead" id="outputNotes"></span></p></div>';
+  var outputHeaderText = '<div class="groupHeader" id="inputHeader">';
   this.outputHeader = $(outputHeaderText);
   this.outputTextArea = $('<textarea class="textInputs" id="dataOutput"></textarea>');
 
@@ -92,13 +53,6 @@ DataConverter.prototype.create = function(w,h) {
   this.dataSelect = this.outputHeader.find("#dataSelector");
 
 
-  //add event listeners
-
-  // $("#convertButton").bind('click',function(evt){
-  //   evt.preventDefault();
-  //   self.convert();
-  // });
-
   this.outputTextArea.click(function(evt){this.select();});
 
 
@@ -106,22 +60,15 @@ DataConverter.prototype.create = function(w,h) {
     evt.preventDefault();
     self.insertSampleData();
     self.convert();
-    _gaq.push(['_trackEvent', 'SampleData','InsertGeneric']);
   });
 
-  $("#dataInput").keyup(function() {self.convert()});
+  $("#dataInput").keyup(function() {self.convert();});
   $("#dataInput").change(function() {
     self.convert();
-    _gaq.push(['_trackEvent', 'DataType',self.outputDataType]);
   });
 
-  $("#dataSelector").bind('change',function(evt){
-       self.outputDataType = $(this).val();
-       self.convert();
-     });
-
   this.resize(w,h);
-}
+};
 
 DataConverter.prototype.resize = function(w,h) {
 
@@ -137,40 +84,49 @@ DataConverter.prototype.resize = function(w,h) {
 DataConverter.prototype.convert = function() {
 
   this.inputText = this.inputTextArea.val();
+  var input_text = this.inputTextArea.val();
   this.outputText = "";
-
+  // console.info(typeof input_text)
 
   //make sure there is input data before converting...
   if (this.inputText.length > 0) {
 
-    if (this.includeWhiteSpace) {
-      this.newLine = "\n";
-      // console.log("yes")
-    } else {
-      this.indent = "";
-      this.newLine = "";
-      // console.log("no")
+    var headertext = [];
+    var table_obj = $(this.inputText),
+    table_class = table_obj.attr("class") + " responsive-table",
+    table_id = table_obj.attr("id");
+    
+    var tablehead = $('thead', table_obj), 
+    headers = $('th', tablehead),
+    tablebody = $('tbody', table_obj),
+    tablerows = $('tr', tablebody),
+    tablefooter = $('tfoot', table_obj),
+    tablefootrows = $('tr', tablefooter),
+    final_output = "",
+
+
+    //if no thead alert
+    if(tablehead.length<1 || header.length<1){alert("please provide a <thead> and <th> elements in your code")}
+    //delete children of table
+
+    for(var i = 0; i < headers.length; i++) {
+      var current = headers[i];
+      headertext.push( current.textContent.replace( /\r?\n|\r/,"") );
     }
+    for (var i = 0, row; row = tablerows[i]; i++) {
+      for (var j = 0, col; col = row.cells[j]; j++) {
+        col.setAttribute("data-th", headertext[j]);        
+      } 
+    }
+    final_output = "<table class='"+ table_class + "' id='" + table_id + "'>" + table_obj.html() + "</table>";
 
-    CSVParser.resetLog();
-    var parseOutput = CSVParser.parse(this.inputText, this.headersProvided, this.delimiter, this.downcaseHeaders, this.upcaseHeaders);
-
-    var dataGrid = parseOutput.dataGrid;
-    var headerNames = parseOutput.headerNames;
-    var headerTypes = parseOutput.headerTypes;
-    var errors = parseOutput.errors;
-
-    this.outputText = DataGridRenderer[this.outputDataType](dataGrid, headerNames, headerTypes, this.indent, this.newLine);
-
-
-    this.outputTextArea.val(errors + this.outputText);
+    this.outputTextArea.val(final_output);
 
   }; //end test for existence of input text
 }
 
 
 DataConverter.prototype.insertSampleData = function() {
-  this.inputTextArea.val("NAME\tVALUE\tCOLOR\tDATE\nAlan\t12\tblue\tSep. 25, 2009\nShan\t13\t\"green\tblue\"\tSep. 27, 2009\nJohn\t45\torange\tSep. 29, 2009\nMinna\t27\tteal\tSep. 30, 2009");
-}
+  this.inputTextArea.val(" <table class='myclass'  id='myid'>\n <thead>\n<tr class='myclass'>\n <th class='myclass'>Month</th>\n <th>Savings</th>\n </tr>\n</thead>\n<tbody>\n  <tr>\n <td>January</td>\n <td>$100</td>\n </tr>\n </tbody>\n </table>\n "); }
 
 
