@@ -102,7 +102,7 @@ DataConverter.prototype.convert = function() {
     tablerows = $('tr', tablebody),
     tablefooter = $('tfoot', table_obj),
     tablefootrows = $('tr', tablefooter),
-    final_output = "",
+    final_output = "";
 
 
     //if no thead alert
